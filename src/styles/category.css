@@ -1,0 +1,220 @@
+/* --- LAYOUT CHUNG --- */
+.category-layout-wrapper {
+  display: flex;
+  gap: 30px; 
+  padding-bottom: 50px;
+  align-items: flex-start; 
+  margin-top: 30px;
+}
+
+/* --- 1. SIDEBAR (Bên trái) --- */
+.sidebar {
+  flex-shrink: 0;
+  width: 270px; /* Đặt width cố định để tránh bị co lại quá nhỏ */
+}
+
+.sidebar-widget {
+  background: #fff;
+  margin-bottom: 30px;
+  border: 1px solid #eee; /* Thêm viền nhẹ cho đẹp */
+}
+
+/* Header Xám Đậm đặc trưng */
+.widget-header-dark {
+  background-color: #555555;
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 12px 15px;
+  font-size: 14px;
+  border-radius: 2px 2px 0 0;
+}
+
+.widget-content {
+  padding: 15px 15px;
+}
+
+.filter-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 15px 0;
+  padding-left: 10px;
+  border-left: 3px solid #ccc;
+  line-height: 1.2;
+  color: #333;
+}
+
+/* Danh sách Checkbox */
+.filter-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.filter-list li {
+  margin-bottom: 10px;
+}
+
+/* Custom Checkbox Style */
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  user-select: none;
+}
+
+.custom-checkbox:hover {
+  color: var(--primary-color);
+}
+
+.custom-checkbox input {
+  accent-color: var(--primary-color);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* --- 2. MAIN CONTENT (Bên phải) --- */
+.main-content {
+  flex: 1; 
+}
+.shop-toolbar {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* Khu vực bên phải: Chứa Text và Select */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+
+/* Style cho dòng chữ */
+.product-count {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap; 
+}
+
+.product-count b {
+  color: var(--primary-color); /* Sử dụng màu chủ đạo */
+}
+.sort-box select {
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 4px;
+  outline: none;
+  color: #333;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* GRID SẢN PHẨM  */
+.shop-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 20px;
+}
+
+/* --- LOAD MORE --- */
+
+.load-more-trigger {
+    margin-top: 30px;
+    height: 60px; /* Chiều cao cố định để IntersectionObserver dễ bắt */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Hiệu ứng vòng xoay Loading */
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3; /* Màu nền xám nhạt */
+    border-top: 3px solid var(--primary-color); /* Màu chính xoay */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Chữ báo hết hàng */
+.no-more-text {
+    color: #999;
+    font-size: 14px;
+    font-style: italic;
+    position: relative;
+    padding: 0 20px;
+}
+
+.no-more-text::before,
+.no-more-text::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40px;
+    height: 1px;
+    background-color: #eee;
+}
+.no-more-text::before { left: -30px; }
+.no-more-text::after { right: -30px; }
+/* --- RESPONSIVE --- */
+
+/* Tablet (< 992px) */
+@media (max-width: 992px) {
+  .category-layout-wrapper {
+    flex-direction: column; 
+  }
+
+  .sidebar {
+    width: 100%; 
+    margin-bottom: 20px;
+  }
+  
+  .shop-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile (< 600px) */
+@media (max-width: 600px) {
+  .shop-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .shop-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .toolbar-right {
+      width: 100%;
+      justify-content: space-between;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+}
