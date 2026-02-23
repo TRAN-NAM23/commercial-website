@@ -1,49 +1,117 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import logo from '../assets/logo.png'; // Đảm bảo đúng đường dẫn logo
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import logo from '../assets/logo.png'; 
 import { FaSearch, FaShoppingCart, FaPhoneAlt, FaUser, FaBars, FaTimes, FaChevronRight } from "react-icons/fa";
 import '../styles/header.css';
-
+import { Products } from '../data/products.js'; 
 function Header({openPopUp}) {
-  // State quản lý việc đóng/mở menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Hàm toggle menu
-  const toggleMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  // --- STATE TÌM KIẾM ---
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const searchRef = useRef(null);
+
+  // --- LOGIC LỌC SẢN PHẨM TÌM KIẾM ---
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSearchResults([]);
+        setIsDropdownVisible(false);
+        return;
+    }
+
+    // Lọc sản phẩm có tên chứa từ khóa (không phân biệt hoa thường)
+    const filteredProducts = Products.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setSearchResults(filteredProducts.slice(0, 5)); 
+    setIsDropdownVisible(true);
+  }, [searchTerm]);
+
+  // --- LOGIC ĐÓNG DROPDOWN KHI CLICK RA NGOÀI ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (searchRef.current && !searchRef.current.contains(event.target)) {
+            setIsDropdownVisible(false);
+        }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => { document.removeEventListener('mousedown', handleClickOutside); };
+  }, []);
+
+  // --- LOGIC CHỌN SẢN PHẨM ---
+  const handleProductClick = (productId) => {
+    setIsDropdownVisible(false);
+    setSearchTerm(''); // Xóa nội dung tìm kiếm sau khi click
+    navigate(`/ProductDetail/${productId}`);
   };
 
-  // Hàm đóng menu khi click vào link bên trong
-  const closeMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
+  const toggleMenu = () => { setIsMobileMenuOpen(!isMobileMenuOpen); };
+  const closeMenu = () => { setIsMobileMenuOpen(false); };
 
   return (
     <>
       <header className="header-wrapper fixed-header">
-        
         <div className="container header-main">
           
-          {/* 1. Nút Menu Mobile (Chỉ hiện trên Tablet/Phone) */}
           <div className="mobile-menu-toggle" onClick={toggleMenu}>
             <FaBars />
           </div>
 
-          {/* Logo */}
           <Link to="/" className="logo-link" onClick={closeMenu}>
              <img src={logo} alt="Logo" className='logo' />
           </Link>
 
-          {/* Thanh tìm kiếm */}
-          <div className="search-bar ">
-            <input type="text" placeholder="Tìm kiếm đặc sản..." />
+          {/* --- THANH TÌM KIẾM --- */}
+          <div className="search-bar" ref={searchRef} style={{ position: 'relative' }}>
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm đặc sản..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={() => {
+                if (searchResults.length > 0) setIsDropdownVisible(true);
+              }}
+            />
             <button className="btn-search">
               <FaSearch className="icon-search" />
             </button>
+
+            {/* Khung Dropdown Hiển Thị Kết Quả */}
+            {isDropdownVisible && searchResults.length > 0 && (
+                <div className="search-dropdown">
+                    {searchResults.map((product) => (
+                        <div 
+                            key={product.id} 
+                            className="search-item"
+                            onClick={() => handleProductClick(product.id)}
+                        >
+                            <img src={product.image} alt={product.name} className="search-item-img" />
+                            <div className="search-item-info">
+                                <h4 className="search-item-name">{product.name}</h4>
+                                <span className="search-item-price">
+                                    {Number(product.price).toLocaleString()} ₫
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Thông báo không tìm thấy */}
+            {isDropdownVisible && searchTerm.trim() !== '' && searchResults.length === 0 && (
+                <div className="search-dropdown empty-result">
+                    Không tìm thấy sản phẩm "{searchTerm}"
+                </div>
+            )}
           </div>
+          {/* -------------------------------------- */}
 
           <div className="header-actions">
-            {/* Hotline (Ẩn trên mobile) */}
             <div className="hotline hide-on-mobile">
               <span>Hotline </span>
               <div className="hotline-number">
@@ -52,42 +120,24 @@ function Header({openPopUp}) {
               </div>
             </div>
           
-            {/* Giỏ hàng */}
             <Link to="/Cart" className="action-item">
               <FaShoppingCart className="icon-cart" />
               <span className="label">Giỏ hàng (0)</span>
             </Link>
 
-            {/* Account*/}
           <div className="user-dropdown-container hide-on-mobile">
-             {/* Icon User */}
              <Link to = "/Register" className="action-item">
                 <FaUser className="icon-user" />
                 <span className="label">Tài khoản</span>
              </Link>
 
-             {/* Menu Dropdown (Ẩn, chỉ hiện khi hover) */}
              <div className="user-dropdown-menu">
                 <div className="dropdown-arrow"></div>
-                <div 
-                    className="dropdown-btn" 
-                    onClick={(e) => {
-                    e.stopPropagation(); // Ngăn sự kiện lan ra ngoài
-                    openPopUp('login');
-                    }}
-                    style={{cursor: 'pointer'}}
-                >
+                <div className="dropdown-btn" onClick={(e) => { e.stopPropagation(); openPopUp('login'); }} style={{cursor: 'pointer'}}>
                    Đăng nhập
                 </div>
                 
-                <div 
-                    className="dropdown-btn" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openPopUp('register'); 
-                  }}
-                    style={{cursor: 'pointer'}}
-                >
+                <div className="dropdown-btn" onClick={(e) => { e.stopPropagation(); openPopUp('register'); }} style={{cursor: 'pointer'}}>
                    Đăng ký
                 </div>
              </div>
@@ -95,7 +145,6 @@ function Header({openPopUp}) {
           </div>
         </div>
 
-        {/* Navigation Desktop (Ẩn trên mobile) */}
         <nav className="navbar desktop-nav">
           <div className="container">
             <ul className="nav-menu">
@@ -111,55 +160,26 @@ function Header({openPopUp}) {
         </nav>
       </header>
 
-      {/* --- PHẦN MENU MOBILE (SIDEBAR) --- */}
-      
-      {/* 1. Lớp phủ đen mờ (Overlay) */}
-      <div 
-        className={`mobile-overlay ${isMobileMenuOpen ? 'open' : ''}`} 
-        onClick={closeMenu}
-      ></div>
+      {/* PHẦN MENU MOBILE GIỮ NGUYÊN BÊN DƯỚI... */}
+      <div className={`mobile-overlay ${isMobileMenuOpen ? 'open' : ''}`} onClick={closeMenu}></div>
 
-      {/* 2. Thanh Menu trượt ra */}
       <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
-        
-        {/* Header của Sidebar */}
         <div className="sidebar-header">
           <h3>MENU</h3>
-          <button className="close-btn" onClick={closeMenu}>
-            <FaTimes />
-          </button>
+          <button className="close-btn" onClick={closeMenu}><FaTimes /></button>
         </div>
-
-        {/* Danh sách link mobile */}
         <ul className="sidebar-menu">
-          <li>
-            <Link to="/" onClick={closeMenu}>Trang chủ <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/Category" onClick={closeMenu}>Danh mục <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/" onClick={closeMenu}>Đặc sản miền Bắc <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/" onClick={closeMenu}>Đặc sản miền Trung <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/" onClick={closeMenu}>Đặc sản miền Nam <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/" onClick={closeMenu}>Bộ quà tặng <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/" onClick={closeMenu}>Liên hệ <FaChevronRight /></Link>
-          </li>
-          <li>
-            <Link to="/login" onClick={closeMenu}>Tài khoản <FaChevronRight /></Link>
-          </li>
+          <li><Link to="/" onClick={closeMenu}>Trang chủ <FaChevronRight /></Link></li>
+          <li><Link to="/Category" onClick={closeMenu}>Danh mục <FaChevronRight /></Link></li>
+          <li><Link to="/" onClick={closeMenu}>Đặc sản miền Bắc <FaChevronRight /></Link></li>
+          <li><Link to="/" onClick={closeMenu}>Đặc sản miền Trung <FaChevronRight /></Link></li>
+          <li><Link to="/" onClick={closeMenu}>Đặc sản miền Nam <FaChevronRight /></Link></li>
+          <li><Link to="/" onClick={closeMenu}>Bộ quà tặng <FaChevronRight /></Link></li>
+          <li><Link to="/" onClick={closeMenu}>Liên hệ <FaChevronRight /></Link></li>
+          <li><Link to="/login" onClick={closeMenu}>Tài khoản <FaChevronRight /></Link></li>
         </ul>
       </div>
       
-      {/* Một div rỗng để đẩy nội dung web xuống, tránh bị Header che mất */}
       <div className="header-spacer"></div>
     </>
   )

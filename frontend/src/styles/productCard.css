@@ -28,6 +28,7 @@
     padding-top: 100%; /* Tạo khung vuông 1:1 */
     overflow: hidden;
     border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
 }
 
 .product-img {
@@ -38,6 +39,7 @@
     padding: 2px;
     border-radius: 6px 6px 0 0;
     transition: transform 0.4s ease;
+  
 }
 
 .product-card:hover .product-img {

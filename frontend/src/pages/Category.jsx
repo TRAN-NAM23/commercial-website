@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom'; // 1. IMPORT CÁI NÀY QUAN TRỌNG
+import { useSearchParams } from 'react-router-dom';
 
 import ProductCard from '../components/ProductCard.jsx';
 import Breadcrumb from '../components/Breadcrumb.jsx'; 
@@ -11,50 +11,67 @@ import '../styles/category.css';
 const Category = () => {
   const [products, setProducts] = useState([]);
   const [sortOption, setSortOption] = useState('default');
-  
-  // 2. KHAI BÁO SEARCH PARAMS ĐỂ ĐỌC URL
-  const [searchParams] = useSearchParams();
-  
-  // Cấu hình Load More
+  const [searchParams] = useSearchParams(); 
+  // Load More Config
   const INITIAL_LIMIT = 8; 
   const LOAD_MORE_STEP = 4; 
   const [visibleCount, setVisibleCount] = useState(INITIAL_LIMIT);
   const loadMoreRef = useRef(null);
 
-  // --- LOGIC LỌC SẢN PHẨM ---
-  useEffect(() => {
-    // 1. Lấy tất cả sản phẩm gốc
-    let data = getAllProducts();
-    
-    // 2. Đọc region từ URL (ví dụ: ?region=bac)
-    const regionParam = searchParams.get('region');
+  // Lấy giá trị từ URL
+  const regionParam = searchParams.get('region');
+  const typeParam = searchParams.get('type'); 
+  // --- 1. XỬ LÝ TIÊU ĐỀ & BREADCRUMB ---
+  let pageTitle = "Tất cả sản phẩm";
+  let breadcrumbParents = []; 
 
-    // 3. Nếu có region trên URL thì lọc luôn
+  if (regionParam || typeParam) {
+      breadcrumbParents = [{ name: "Sản phẩm", link: "/tat-ca-san-pham" }];
+
+      if (regionParam) {
+          switch(regionParam) {
+              case 'bac': pageTitle = "Đặc sản miền Bắc"; break;
+              case 'trung': pageTitle = "Đặc sản miền Trung"; break;
+              case 'nam': pageTitle = "Đặc sản miền Nam"; break;
+              default: pageTitle = "Sản phẩm";
+          }
+      } 
+      // Nếu có type=hot thì đổi tên tiêu đề
+      else if (typeParam === 'hot') {
+          pageTitle = "Sản phẩm Nổi bật 🔥";
+      }
+  }
+
+  // --- 2. LOGIC LỌC DATA ---
+  useEffect(() => {
+    let data = getAllProducts();
+
+    // Lọc theo Vùng miền
     if (regionParam) {
-        // Lọc theo trường 'region' trong file data
         data = data.filter(item => item.region === regionParam);
     }
 
+    // Lọc theo Sản phẩm Hot (LOGIC MỚI)
+    if (typeParam === 'hot') {
+        data = data.filter(item => item.isHot === true);
+    }
+
     setProducts(data);
-    setVisibleCount(INITIAL_LIMIT); // Reset lại số lượng hiển thị khi đổi danh mục
-  }, [searchParams]); // Chạy lại mỗi khi URL thay đổi (bấm menu khác)
+    setVisibleCount(INITIAL_LIMIT); 
+  }, [searchParams]); // Chạy lại khi URL thay đổi
 
-
-  // --- LOGIC SẮP XẾP ---
+  // Logic sắp xếp
   const getSortedProducts = () => {
     let sorted = [...products];
-    if (sortOption === 'price-asc') {
-      sorted.sort((a, b) => a.price - b.price);
-    } else if (sortOption === 'price-desc') {
-      sorted.sort((a, b) => b.price - a.price);
-    }
+    if (sortOption === 'price-asc') sorted.sort((a, b) => a.price - b.price);
+    else if (sortOption === 'price-desc') sorted.sort((a, b) => b.price - a.price);
     return sorted;
   };
 
   const sortedProducts = getSortedProducts();
   const currentViewProducts = sortedProducts.slice(0, visibleCount);
 
-  // --- LOGIC SCROLL ---
+  // Logic Infinite Scroll
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       const target = entries[0];
@@ -69,50 +86,43 @@ const Category = () => {
     return () => { if (loadMoreRef.current) observer.unobserve(loadMoreRef.current); };
   }, [visibleCount, sortedProducts.length]); 
 
-  // --- HÀM HELPER ĐỂ CHECK XEM CHECKBOX CÓ NÊN ĐƯỢC CHECK KHÔNG ---
-  const isRegionChecked = (regionKey) => {
-      return searchParams.get('region') === regionKey;
-  };
+  // Helper check checkbox
+  const isRegionChecked = (regionKey) => regionParam === regionKey;
+  const isHotChecked = () => typeParam === 'hot';
 
   return (
     <>
-      <Breadcrumb title="Tất cả sản phẩm" />
+      <Breadcrumb title={pageTitle} parents={breadcrumbParents} />
 
       <div className="container category-layout-wrapper">
         <aside className="sidebar">
            <div className="sidebar-widget">
             <div className="widget-header-dark">LỌC SẢN PHẨM</div>
             <div className="widget-content">
-               <h4 className="filter-group-title">Giá</h4>
+               
+               {/* --- LỌC TRẠNG THÁI --- */}
+               <h4 className="filter-group-title">Trạng thái</h4>
                <ul className="filter-list">
-                  <li><label className="custom-checkbox"><input type="checkbox" /> <span className="checkmark"></span> Tất cả</label></li>
-                 <li><label className="custom-checkbox"><input type="checkbox" /> <span className="checkmark"></span> Dưới 100k</label></li>
-                 <li><label className="custom-checkbox"><input type="checkbox" /> <span className="checkmark"></span> 100k - 300k</label></li>
-                 <li><label className="custom-checkbox"><input type="checkbox" /> <span className="checkmark"></span> 300k - 500k</label></li>
-                 <li><label className="custom-checkbox"><input type="checkbox" /> <span className="checkmark"></span> Trên 500k</label></li>
+                 <li>
+                    <label className="custom-checkbox">
+                        {/* Checkbox tự động tích nếu URL có ?type=hot */}
+                        <input type="checkbox" checked={isHotChecked()} readOnly/> 
+                        <span className="checkmark"></span> Sản phẩm Nổi bật 🔥
+                    </label>
+                 </li>
+                 <li>
+                    <label className="custom-checkbox">
+                        <input type="checkbox" /> <span className="checkmark"></span> Đang giảm giá
+                    </label>
+                 </li>
                </ul>
 
                <h4 className="filter-group-title" style={{marginTop: '20px'}}>Danh mục</h4>
                <ul className="filter-list">
-                 {/* Cập nhật UI: Nếu URL đang là region đó thì checkbox tự động tick */}
-                 <li>
-                    <label className="custom-checkbox">
-                        <input type="checkbox" checked={isRegionChecked('bac')} readOnly/> 
-                        <span className="checkmark"></span> Đặc sản miền Bắc
-                    </label>
-                 </li>
-                 <li>
-                    <label className="custom-checkbox">
-                        <input type="checkbox" checked={isRegionChecked('trung')} readOnly/> 
-                        <span className="checkmark"></span> Đặc sản miền Trung
-                    </label>
-                 </li>
-                 <li>
-                    <label className="custom-checkbox">
-                        <input type="checkbox" checked={isRegionChecked('nam')} readOnly/> 
-                        <span className="checkmark"></span> Đặc sản miền Nam
-                    </label>
-                 </li>
+                 <li><label className="custom-checkbox"><input type="checkbox" checked={!regionParam && !typeParam} readOnly/> <span className="checkmark"></span> Tất cả</label></li>
+                 <li><label className="custom-checkbox"><input type="checkbox" checked={isRegionChecked('bac')} readOnly/> <span className="checkmark"></span> Đặc sản miền Bắc</label></li>
+                 <li><label className="custom-checkbox"><input type="checkbox" checked={isRegionChecked('trung')} readOnly/> <span className="checkmark"></span> Đặc sản miền Trung</label></li>
+                 <li><label className="custom-checkbox"><input type="checkbox" checked={isRegionChecked('nam')} readOnly/> <span className="checkmark"></span> Đặc sản miền Nam</label></li>
                </ul>
             </div>
           </div>
@@ -120,12 +130,7 @@ const Category = () => {
 
         <main className="main-content">
           <div className="shop-toolbar">
-            <h4 className="page-title">
-                {/* Đổi tiêu đề động theo URL cho chuyên nghiệp */}
-                {searchParams.get('region') === 'bac' ? 'ĐẶC SẢN MIỀN BẮC' : 
-                 searchParams.get('region') === 'trung' ? 'ĐẶC SẢN MIỀN TRUNG' : 
-                 searchParams.get('region') === 'nam' ? 'ĐẶC SẢN MIỀN NAM' : 'TẤT CẢ SẢN PHẨM'}
-            </h4>
+            <h4 className="page-title">{pageTitle.toUpperCase()}</h4>
             
             <div className="toolbar-right">
               <span className="product-count">
@@ -147,18 +152,16 @@ const Category = () => {
                 <ProductCard key={product.id} product={product} />
               ))
             ) : (
-              <p style={{gridColumn: '1 / -1', textAlign: 'center', padding: '20px'}}>
-                  Không có sản phẩm nào thuộc danh mục này.
-              </p>
+              <p style={{gridColumn: '1 / -1', textAlign: 'center', padding: '20px'}}>Không tìm thấy sản phẩm nổi bật nào.</p>
             )}
           </div>
 
           <div className="load-more-trigger" ref={loadMoreRef}>
-            {visibleCount < sortedProducts.length ? (
-              <div className="loading-spinner"></div>
-            ) : (
-              sortedProducts.length > 0 && <span className="no-more-text">Đã hiển thị tất cả sản phẩm</span>
-            )}
+             {visibleCount < sortedProducts.length ? (
+               <div className="loading-spinner"></div>
+             ) : (
+               sortedProducts.length > 0 && <span className="no-more-text">Đã hiển thị tất cả sản phẩm</span>
+             )}
           </div>
           
         </main>

@@ -8,13 +8,13 @@ import { getHotProducts, getProductsBySeason } from '../../data/products.js';
 
 const ProductSection = ({ title = "ĐẶC SẢN NỔI BẬT", type = 'hot' }) => {
   
-  // State quản lý tab mùa
+  // 1. State quản lý tab mùa
   const [activeSeason, setActiveSeason] = useState('spring');
   
-  // 3. State quản lý danh sách sản phẩm (thay vì biến let)
+  // 2. State quản lý danh sách sản phẩm (thay vì biến let)
   const [products, setProducts] = useState([]);
 
-  // 4. Dùng useEffect để lấy dữ liệu tự động
+  // 3. Dùng useEffect để lấy dữ liệu tự động
   useEffect(() => {
     let data = [];
     
@@ -29,14 +29,23 @@ const ProductSection = ({ title = "ĐẶC SẢN NỔI BẬT", type = 'hot' }) =>
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProducts(data); // Cập nhật state
     
-  }, [type, activeSeason]); // Chạy lại khi type hoặc activeSeason thay đổi
-
+  }, [type, activeSeason]); 
   const seasonSubtitles = {
     spring: "Hương vị Tết & Xuân",
     summer: "Giải nhiệt ngày Hè",
     autumn: "Thức quà Thu Hà Nội",
     winter: "Ấm áp Mùa Đông"
   };
+
+    // Link động dẫn đến các sp nổi bật và mùa còn lại 
+    const getViewMoreLink = () =>{
+      if (type === 'hot') {
+          return '/tat-ca-san-pham?type=hot'; // Dẫn về trang lọc Hot
+      } 
+    
+      
+      return '/tat-ca-san-pham';
+    }
 
   return (
     <section className="product-section">
@@ -80,8 +89,9 @@ const ProductSection = ({ title = "ĐẶC SẢN NỔI BẬT", type = 'hot' }) =>
           )}
         </div>
 
+
         <div className="view-more-container">
-          <Link to="/ProductDetail" className="btn-view-more">
+          <Link to={getViewMoreLink()} className="btn-view-more">
             Xem thêm
           </Link>
         </div>

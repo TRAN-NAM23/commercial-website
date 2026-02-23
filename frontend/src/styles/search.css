@@ -1,0 +1,107 @@
+
+.search-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Khung bọc ô input */
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 5px 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.search-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.search-btn {
+    background: none;
+    border: none;
+    color: #b76d28;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+
+/* --- BẢNG DROPDOWN KẾT QUẢ --- */
+.search-dropdown {
+    position: absolute; 
+    top: 110%; 
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+    border: 1px solid #eee;
+    z-index: 1000; /* Luôn nằm trên cùng */
+    max-height: 400px;
+    overflow-y: auto; 
+    padding: 10px 0;
+}
+
+/* Từng item kết quả */
+.search-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover {
+    background: #fdf8f5; /* Đổi màu nền khi di chuột vào */
+}
+
+.search-item-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.search-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.search-item-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Cắt chữ nếu tên quá dài */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.search-item-price {
+    font-size: 13px;
+    color: #d32f2f; /* Màu đỏ cho giá */
+    font-weight: bold;
+}
+
+.empty-result {
+    padding: 15px;
+    text-align: center;
+    color: #777;
+    font-size: 14px;
+}

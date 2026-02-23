@@ -12,11 +12,11 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="product-card">
-      
+     <Link to={`/ProductDetail/${product.id}`}>
       <div className="product-image-wrapper">
-        <Link to={`/ProductDetail/${product.id}`}>
+        
           <img src={product.image} alt={product.name} className="product-img" />
-        </Link>
+    
         
         {/* Nhãn Giảm giá */}
         {product.discount > 0 && (
@@ -36,6 +36,7 @@ const ProductCard = ({ product }) => {
           </Link>
         </div>
       </div>
+      </Link> 
 
       <div className="product-info">
         <h3 className="product-name">
