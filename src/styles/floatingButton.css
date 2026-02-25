@@ -1,0 +1,221 @@
+
+.floating-container {
+    position: fixed;
+    right: 20px; 
+    bottom: 100px; 
+    z-index: 9999; 
+    display: flex;
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+.float-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 24px; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3); 
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.float-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+.phone-btn {
+    background-color: #D32F2F; 
+    animation: phone-shake 2s infinite; /* Rung lắc liên tục */
+}
+
+.zalo-btn {
+    background-color: #0068FF; 
+    font-size: 25px;
+}
+
+.map-btn {
+    background-color: #FBC02D; /* Vàng nghệ đậm */
+}
+
+/* --- HIỆU ỨNG RUNG LẮC CHO ĐIỆN THOẠI --- */
+@keyframes phone-shake {
+    0% { transform: rotate(0) scale(1); }
+    10% { transform: rotate(-25deg) scale(1.1); }
+    20% { transform: rotate(25deg) scale(1.1); }
+    30% { transform: rotate(-25deg) scale(1.1); }
+    40% { transform: rotate(25deg) scale(1.1); }
+    50% { transform: rotate(0) scale(1); }
+    100% { transform: rotate(0) scale(1); }
+}
+
+/* --- HIỆU ỨNG SÓNG TỎA RA (RINGING) --- */
+.animate-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #D32F2F;
+    animation: ring-wave 1.5s infinite;
+    z-index: -1;
+}
+
+@keyframes ring-wave {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+/* ... (Giữ nguyên các code CSS cũ của .floating-container, .float-btn, v.v...) */
+
+/* --- CSS CHO MINI MAP POPUP --- */
+.mini-map-popup {
+    position: fixed;
+    bottom: 100px;     /* Ngang tầm với các nút */
+    right: 90px;       /* Nằm bên trái của hàng nút (cách lề phải 90px) */
+    width: 300px;      /* Chiều rộng map */
+    height: 250px;     /* Chiều cao map */
+    background: white;
+    border: 4px solid #FBC02D; /* Viền vàng trùng màu nút Map */
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;    /* Cao hơn cả nút */
+    overflow: hidden;
+    animation: popup-fade-in 0.3s ease;
+}
+
+/* Nút tắt map (dấu X nhỏ) */
+.close-map-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #D32F2F;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+.close-map-btn:hover {
+    background: #b71c1c;
+}
+
+/* Hiệu ứng hiện map */
+@keyframes popup-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsive: Trên điện thoại thì map hiện giữa màn hình cho dễ nhìn */
+@media (max-width: 480px) {
+    .mini-map-popup {
+        right: 50%;
+        transform: translateX(50%); /* Căn giữa */
+        bottom: 180px; /* Đẩy lên cao hơn chút */
+        width: 90%; /* Rộng gần hết màn hình */
+    }
+}
+
+
+
+/* --- STYLE CHUNG CHO CẢ 2 POPUP --- */
+.mini-popup {
+    position: fixed;
+    bottom: 100px;
+    right: 90px;
+    width: 300px;      
+    height: 250px;     
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 10000;
+    overflow: hidden;
+    animation: popup-fade-in 0.3s ease;
+}
+
+/* Style riêng cho Map (Viền vàng) */
+.mini-popup.map-type {
+    border: 4px solid #FBC02D;
+}
+
+/* Style riêng cho Zalo (Viền xanh) */
+.mini-popup.zalo-type {
+    border: 4px solid #0068FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nội dung bên trong Zalo Popup */
+.zalo-content {
+    text-align: center;
+    padding: 10px;
+}
+.zalo-content p {
+    margin: 0 0 10px 0;
+    font-weight: 600;
+    color: #0068FF;
+    font-size: 14px;
+}
+.zalo-content img {
+    width: 150px; /* Kích thước mã QR */
+    height: 150px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Nút tắt (Dấu X) */
+.close-popup-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #D32F2F; /* Mặc định đỏ */
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.close-popup-btn:hover {
+    background: #b71c1c;
+}
+
+/* Hiệu ứng hiện popup */
+@keyframes popup-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .mini-popup {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 180px;
+        width: 90%;
+    }
+}
