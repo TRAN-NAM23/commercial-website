@@ -114,6 +114,46 @@ const ProductDetail = () => {
                     ? product.images 
                     : [product.image, product.image, product.image];
 
+    //// HÀM TỰ ĐỘNG PHÂN TÍCH VÀ ĐỊNH DẠNG BÀI VIẾT
+  const formatDescription = (text) => {
+    if (!text) return null;
+
+    // Tách bài viết thành từng dòng
+    const lines = text.split('\n');
+
+    return lines.map((line, index) => {
+      const str = line.trim();
+      if (!str) return null; // Bỏ qua các dòng trống hoàn toàn
+
+      // 1. Nếu dòng in hoa toàn bộ -> Làm Tiêu đề chính (Màu đỏ/to)
+      if (str === str.toUpperCase() && str.length > 15) {
+        return <h3 key={index} className="desc-main-title">{str}</h3>;
+      }
+      
+      // 2. Nếu dòng bắt đầu bằng số (VD: 1. Xuất xứ...) -> Làm Tiêu đề phụ (Chữ đậm, màu cam)
+      else if (/^\d+\./.test(str)) {
+        return <h4 key={index} className="desc-sub-title">{str}</h4>;
+      }
+      
+      // 3. Nếu dòng bắt đầu bằng dấu chấm hoặc gạch ngang (VD: • Chọn tôm...) -> Làm List danh sách
+      else if (/^[•\-*]/.test(str)) {
+        // Cắt bỏ dấu chấm gốc đi để style lại dấu chấm mới cho xịn
+        const cleanText = str.substring(1).trim();
+        return (
+          <div key={index} className="desc-list-item">
+            <span className="bullet-icon">✦</span> 
+            <span className="list-text">{cleanText}</span>
+          </div>
+        );
+      }
+      
+      // 4. Các dòng còn lại -> Đoạn văn bình thường
+      else {
+        return <p key={index} className="desc-normal-text">{str}</p>;
+      }
+    });
+  };
+
   return (
     <>
       <Breadcrumb title={product.name} parents={[{name: 'Sản phẩm', link: '/san-pham'}]} />
@@ -227,11 +267,8 @@ const ProductDetail = () => {
                 {activeTab === 'description' && (
                     <div className="tab-pane description-pane">
                         <div className="desc-content">
-                            <p>Thông tin chi tiết về sản phẩm <strong>{product.name}</strong>.</p>
-                            <p>
-                                Đây là đặc sản chất lượng cao, được tuyển chọn kỹ lưỡng từ vùng nguyên liệu {product.region === 'bac' ? 'Miền Bắc' : product.region === 'trung' ? 'Miền Trung' : 'Miền Nam'}. 
-                                Sản phẩm đảm bảo vệ sinh an toàn thực phẩm, thích hợp dùng trong gia đình hoặc làm quà biếu.
-                            </p>
+                            {/* Gọi hàm format text ở đây */}
+                            {formatDescription(product.descriptionDetail || product.description)}
                         </div>
                     </div>
                 )}
